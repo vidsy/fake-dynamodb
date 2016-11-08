@@ -1,10 +1,10 @@
 BRANCH ?= "master"
-DOCKER_USER ?= "vidsyhq"
+DOCKER_IMAGE ?= "vidsyhq/fake-dynamodb"
 REPO_NAME ?= "fake-dynamodb"
 VERSION ?= $(shell cat ./VERSION)
 
 build:
-	docker build -t ${DOCKER_USER}/${REPO_NAME} .
+	docker build -t ${DOCKER_IMAGE} .
 
 check-version:
 	@echo "=> Checking if VERSION exists as Git tag..."
