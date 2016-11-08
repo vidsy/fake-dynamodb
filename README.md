@@ -11,3 +11,11 @@ TODO
 ```
 
 > Based off [spurious-io/dynamodb](https://github.com/spurious-io/dynamodb).
+
+## Releases
+
+After merge to **master**, remember to tag your merge commit:
+
+```
+make push-tag
+```
