@@ -7,7 +7,10 @@
 ## Usage
 
 ```
-TODO
+dynamo:
+  image: vidsyhq/fake-dynamodb:latest
+  ports:
+    - 6001:6001
 ```
 
 > Based off [spurious-io/dynamodb](https://github.com/spurious-io/dynamodb).
