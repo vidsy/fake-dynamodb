@@ -10,4 +10,5 @@ RUN tar -zxvf dynamodb_local_latest -C /var/data/local-dynamo
 
 EXPOSE 6001
 
-ENTRYPOINT ["java", "-Djava.library.path=/var/data/local-dynamo/DynamoDBLocal_lib", "-jar", "/var/data/local-dynamo/DynamoDBLocal.jar", "-port", "6001"]
+ENTRYPOINT ["java"]
+CMD ["-Djava.library.path=/var/data/local-dynamo/DynamoDBLocal_lib", "-jar", "/var/data/local-dynamo/DynamoDBLocal.jar", "-port", "6001"]
