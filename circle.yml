@@ -1,0 +1,31 @@
+general:
+  branches:
+    ignore:
+      - master
+
+machine:
+  environment:
+    DOCKER_IMAGE: vidsyhq/fake-dynamodb
+  services:
+    - docker
+
+dependencies:
+  override:
+    - make build
+
+test:
+  override:
+    - echo "No tests yest...!"
+
+deployment:
+  feature-branch:
+    branch: /^((?!master).)*$/
+    commands:
+      - make check-version
+  hub:
+    tag: /[0-9]+\.[0-9]+\.[0-9]+/
+    commands:
+      - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+      - docker tag $DOCKER_IMAGE:latest $DOCKER_IMAGE:$CIRCLE_TAG
+      - docker push $DOCKER_IMAGE:$CIRCLE_TAG
+      - docker push $DOCKER_IMAGE
