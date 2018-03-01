@@ -3,7 +3,7 @@ DOCKER_IMAGE ?= "vidsyhq/fake-dynamodb"
 REPO_NAME ?= "fake-dynamodb"
 VERSION ?= $(shell cat ./VERSION)
 
-build:
+build-image:
 	docker build -t ${DOCKER_IMAGE} .
 
 check-version:
@@ -16,3 +16,9 @@ push-tag:
 	git pull origin ${BRANCH}
 	git tag ${VERSION}
 	git push origin ${BRANCH} --tags
+
+push-to-registry:
+	@docker login -e ${DOCKER_EMAIL} -u ${DOCKER_USER} -p ${DOCKER_PASS}
+	@docker tag vidsyhq/${REPONAME}:latest vidsyhq/${REPONAME}:${CIRCLE_TAG}
+	@docker push vidsyhq/${REPONAME}:${CIRCLE_TAG}
+	@docker push vidsyhq/${REPONAME}
