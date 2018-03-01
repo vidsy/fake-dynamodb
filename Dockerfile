@@ -1,5 +1,8 @@
-FROM java:8-alpine
-MAINTAINER Charlie Revett <charlie@vidsy.co>
+FROM java:8
+LABEL maintainer="Vidsy <tech@vidsy.co>"
+
+ARG VERSION
+LABEL version=$VERSION
 
 RUN apk update
 
