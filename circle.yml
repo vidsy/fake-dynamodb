@@ -1,31 +1,74 @@
-general:
-  branches:
-    ignore:
-      - master
+version: 2
+jobs:
+  build_image:
+    docker:
+      - image: buildpack-deps:trusty
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - dependency-cache-{{ .Revision }}
+      - setup_remote_docker
+      - run:
+          name: Install Docker client
+          command: |
+            set -x
+            VER="17.03.0-ce"
+            curl -L -o /tmp/docker-$VER.tgz https://get.docker.com/builds/Linux/x86_64/docker-$VER.tgz
+            tar -xz -C /tmp -f /tmp/docker-$VER.tgz
+            mv /tmp/docker/* /usr/bin
+      - run:  make build-image
+  check_version:
+    working_directory: ~/fake-auth0-api
+    docker:
+      - image: buildpack-deps:trusty
+    steps:
+      - checkout
+      - run: make check-version
+  deploy:
+    working_directory: /go/src/github.com/vidsy/fake-auth0-api
+    docker:
+      - image: buildpack-deps:trusty
+    steps:
+      - checkout
+      - restore_cache:
+          key: dependency-cache-{{ .Revision }}
+      - setup_remote_docker
+      - run:
+          name: Install Docker client
+          command: |
+            set -x
+            VER="17.03.0-ce"
+            curl -L -o /tmp/docker-$VER.tgz https://get.docker.com/builds/Linux/x86_64/docker-$VER.tgz
+            tar -xz -C /tmp -f /tmp/docker-$VER.tgz
+            mv /tmp/docker/* /usr/bin
+      - run: make build-image
+      - deploy:
+          name: deploy
+          command: make push-to-registry
 
-machine:
-  environment:
-    DOCKER_IMAGE: vidsyhq/fake-dynamodb
-  services:
-    - docker
-
-dependencies:
-  override:
-    - make build
-
-test:
-  override:
-    - echo "No tests yest...!"
-
-deployment:
-  feature-branch:
-    branch: /^((?!master).)*$/
-    commands:
-      - make check-version
-  hub:
-    tag: /[0-9]+\.[0-9]+\.[0-9]+/
-    commands:
-      - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
-      - docker tag $DOCKER_IMAGE:latest $DOCKER_IMAGE:$CIRCLE_TAG
-      - docker push $DOCKER_IMAGE:$CIRCLE_TAG
-      - docker push $DOCKER_IMAGE
+workflows:
+  version: 2
+  build_test_deploy:
+    jobs:
+      - check_version:
+          filters:
+            branches:
+              ignore: master
+      - build_image:
+          filters:
+            tags:
+              only: /[0-9]+\.[0-9]+\.[0-9]+/
+            branches:
+              ignore: master
+      - deploy:
+          context: org-docker-hub
+          requires:
+            - build_image
+            - check_version
+          filters:
+            tags:
+              only:
+                - /[0-9]+\.[0-9]+\.[0-9]+/
+            branches:
+              ignore: /.*/
