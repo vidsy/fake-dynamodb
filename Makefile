@@ -1,10 +1,9 @@
 BRANCH ?= "master"
-DOCKER_IMAGE ?= "vidsyhq/fake-dynamodb"
-REPO_NAME ?= "fake-dynamodb"
+REPONAME ?= "fake-dynamodb"
 VERSION ?= $(shell cat ./VERSION)
 
 build-image:
-	docker build -t ${DOCKER_IMAGE} .
+	docker build -t vidsyhq/${REPONAME} .
 
 check-version:
 	@echo "=> Checking if VERSION exists as Git tag..."
@@ -15,7 +14,7 @@ push-tag:
 	git checkout ${BRANCH}
 	git pull origin ${BRANCH}
 	git tag ${VERSION}
-	git push origin ${BRANCH} --tags
+	git push origin ${VERSION}
 
 push-to-registry:
 	@docker login -e ${DOCKER_EMAIL} -u ${DOCKER_USER} -p ${DOCKER_PASS}
